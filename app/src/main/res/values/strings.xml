@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MediaPlayer</string>
+    <string name="random_play">随机</string>
+    <string name="order_play">顺序</string>
+</resources>
