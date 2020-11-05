@@ -101,6 +101,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bindService(intent, this, BIND_AUTO_CREATE);
 
         contentResolver = getApplication().getContentResolver();
+        Map<String, Object> map = new HashMap<>();
+        map.put("id",0);
+        map.put("artist","Cat naps" );
+        map.put("title", "letter");
+        map.put("path", null);
         getMusicData();
         setShow(ListView_songList,list);
         registerForContextMenu(ListView_songList);
@@ -111,18 +116,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String title =  ((TextView)view.findViewById(R.id.tit)).getText().toString();
-                String singer = ((TextView)view.findViewById(R.id.editor)).getText().toString();
-                String path = new String();
-                //显示路径
-
-                //Toast.makeText(getApplicationContext(), title, Toast.LENGTH_LONG).show();
-                System.out.println("-------------------------------------------------" + title);
-                //查询符合条件的文件
-                Cursor cursor = contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, MediaStore.Audio.Media.TITLE + "=?", new String[]{title},null);
-                while(cursor.moveToNext()){   //moveToNext 初始位置为-1。
-                    path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
+                String path=new String();
+                String  Id=  ((TextView)view.findViewById(R.id.id)).getText().toString();
+                for(int i=0;i<list.size();i++){
+                    if(list.get(i).containsValue(Integer.parseInt(Id))){
+                        path=String.valueOf(list.get(i).get("path"));
+                    }
                 }
-                mediaPlayer_localBinder.setCurrent_music(path);
+//                Toast.makeText(getApplicationContext(), path, Toast.LENGTH_LONG).show();
+//                System.out.println("-------------------------------------------------" + title);
+//                //查询符合条件的文件
+//                Cursor cursor = contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, MediaStore.Audio.Media.TITLE + "=?", new String[]{title},null);
+//                while(cursor.moveToNext()){   //moveToNext 初始位置为-1。
+//                    path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
+//                }
+                if(path!="null")
+                    mediaPlayer_localBinder.setCurrent_music(path);
+                else
+                    mediaPlayer_localBinder.setCurrent_music(null);
                 mediaPlayer_localBinder.setCurrent_musicName(title);
                 startService(intent);
                 if(mediaPlayer_localBinder.getStation()){
@@ -199,25 +210,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 if(isRandom){
                     Random rand = new Random();
-
-                    Idex=rand.nextInt(list.size()-1);
-                    mediaPlayer_localBinder.setCurrent_music(String.valueOf(list.get(Idex).get("path")));
-                    mediaPlayer_localBinder.setCurrent_musicName(String.valueOf(list.get(Idex).get("title")));
-                    mediaPlayer_localBinder.pause();
-                    startService(intent);
-                    textView_songTitle.setText("正在播放："+mediaPlayer_localBinder.getCurrent_musicName());
+                    Idex=rand.nextInt(list.size());
                 }
                 else{
-                    if(Idex+1>=list.size()-1)
+                    if(Idex+1>=list.size())
                         Idex=0;
                     else
                         Idex=Idex+1;
-                    mediaPlayer_localBinder.setCurrent_music(String.valueOf(list.get(Idex).get("path")));
-                    mediaPlayer_localBinder.setCurrent_musicName(String.valueOf(list.get(Idex).get("title")));
-                    mediaPlayer_localBinder.pause();
-                    startService(intent);
-                    textView_songTitle.setText("正在播放："+mediaPlayer_localBinder.getCurrent_musicName());
                 }
+                if(String.valueOf(list.get(Idex).get("path"))!="null")
+                    mediaPlayer_localBinder.setCurrent_music(String.valueOf(list.get(Idex).get("path")));
+                else
+                    mediaPlayer_localBinder.setCurrent_music(null);
+                mediaPlayer_localBinder.setCurrent_musicName(String.valueOf(list.get(Idex).get("title")));
+                mediaPlayer_localBinder.pause();
+                startService(intent);
+                textView_songTitle.setText("正在播放："+mediaPlayer_localBinder.getCurrent_musicName());
                 break;
             case R.id.floatingActionButton_lastSong:
                 for(int i=0;i<list.size();i++){
@@ -227,25 +235,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 if(isRandom){
                     Random rand = new Random();
-
                     Idex=rand.nextInt(list.size());
-                    mediaPlayer_localBinder.setCurrent_music(String.valueOf(list.get(Idex).get("path")));
-                    mediaPlayer_localBinder.setCurrent_musicName(String.valueOf(list.get(Idex).get("title")));
-                    mediaPlayer_localBinder.pause();
-                    startService(intent);
-                    textView_songTitle.setText("正在播放："+mediaPlayer_localBinder.getCurrent_musicName());
                 }
                 else{
                     if(Idex<=0)
                         Idex=list.size()-1;
                     else
                         Idex=Idex-1;
-                    mediaPlayer_localBinder.setCurrent_music(String.valueOf(list.get(Idex).get("path")));
-                    mediaPlayer_localBinder.setCurrent_musicName(String.valueOf(list.get(Idex).get("title")));
-                    mediaPlayer_localBinder.pause();
-                    startService(intent);
-                    textView_songTitle.setText("正在播放："+mediaPlayer_localBinder.getCurrent_musicName());
                 }
+                if(String.valueOf(list.get(Idex).get("path"))!="null")
+                    mediaPlayer_localBinder.setCurrent_music(String.valueOf(list.get(Idex).get("path")));
+                else
+                    mediaPlayer_localBinder.setCurrent_music(null);
+                mediaPlayer_localBinder.setCurrent_musicName(String.valueOf(list.get(Idex).get("title")));
+                mediaPlayer_localBinder.pause();
+                startService(intent);
+                textView_songTitle.setText("正在播放："+mediaPlayer_localBinder.getCurrent_musicName());
             break;
         }
     }
@@ -339,6 +344,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 song.clear();
+                setShow(ListView_songList,list);
             }
         })
                 .setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -351,9 +357,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String Id =  ((TextView)view.findViewById(R.id.id)).getText().toString();
-                Map<String, Object> map = new HashMap<>();
+
                 for(int i=0;i<song.size();i++)
                      if(song.get(i).containsValue(Integer.parseInt(Id))){
+                         Map<String, Object> map = new HashMap<>();
                          map.put("id",song.get(i).get("id"));
                          map.put("artist",song.get(i).get("artist") );
                          map.put("title", song.get(i).get("title"));
@@ -364,13 +371,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
         builder.create().show();
-        setShow(ListView_songList,list);
+
     }
 
 
     public void getMusicData(){
         Cursor cursor = contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null,null);
-       int id=-1;
+       int id=0;
         while(cursor.moveToNext()){
             Map<String, Object> map = new HashMap<>();
             //获取路径

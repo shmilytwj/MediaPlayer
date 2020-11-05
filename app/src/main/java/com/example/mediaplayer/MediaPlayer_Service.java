@@ -90,7 +90,22 @@ public class MediaPlayer_Service extends Service {
 //        LayoutInflater.from()
         //先判断当前音乐路径是否为空，若为空设置默认音乐  播放路径中的音乐
         if(localBinder.current_music == null){
-           localBinder.mediaPlayer = MediaPlayer.create(this, R.raw.letter);
+            localBinder.mediaPlayer.pause();
+            switch(localBinder.current_musicName){
+                case "letter":
+                    localBinder.mediaPlayer = MediaPlayer.create(this, R.raw.letter);
+                    break;
+                case "Time" :
+                    localBinder.mediaPlayer = MediaPlayer.create(this, R.raw.time);
+                    localBinder.play();
+                    break;
+                case "would you miss me":
+                    localBinder.mediaPlayer = MediaPlayer.create(this, R.raw.wouldyoumissme);
+                    localBinder.play();
+                    break;
+            }
+
+
         }else{
             localBinder.mediaPlayer.pause();
             localBinder.mediaPlayer = MediaPlayer.create(this, Uri.parse(localBinder.current_music));
